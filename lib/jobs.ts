@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import type { Job, JobStatus, Paginated, Rating } from "@/lib/types"
+import type { Job, JobStatus, Paginated, PaymentInit, Rating } from "@/lib/types"
 
 export async function listMyJobs(status?: JobStatus) {
   const { data } = await api.get<Paginated<Job>>("/requests/jobs/", {
@@ -30,5 +30,15 @@ export async function completeJob(id: string) {
 
 export async function rateJob(id: string, payload: { score: number; comment?: string }) {
   const { data } = await api.post<Rating>(`/requests/jobs/${id}/rate/`, payload)
+  return data
+}
+
+export async function initiatePayment(id: string) {
+  const { data } = await api.post<PaymentInit>(`/requests/jobs/${id}/initiate_payment/`)
+  return data
+}
+
+export async function verifyPayment(id: string, reference: string) {
+  const { data } = await api.post<Job>(`/requests/jobs/${id}/verify_payment/`, { reference })
   return data
 }

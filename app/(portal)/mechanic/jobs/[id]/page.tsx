@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Check, Loader2, MapPin, X } from "lucide-react"
+import { Check, CreditCard, Loader2, MapPin, X } from "lucide-react"
 
 import { RatePrompt } from "@/components/ratings/RatePrompt"
 import { TopBar } from "@/components/portal/TopBar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { acceptJob, completeJob, declineJob, getJob, rateJob } from "@/lib/jobs"
+import { acceptJob, completeJob, declineJob, getJob, initiatePayment, rateJob, verifyPayment } from "@/lib/jobs"
+import { openPaystackCheckout } from "@/lib/paystack"
 import { statusBadgeClass } from "@/lib/status"
 import type { Job } from "@/lib/types"
 
@@ -18,6 +19,8 @@ export default function JobDetailPage() {
   const router = useRouter()
   const [job, setJob] = useState<Job | null>(null)
   const [acting, setActing] = useState(false)
+  const [paying, setPaying] = useState(false)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
@@ -53,6 +56,30 @@ export default function JobDetailPage() {
       if (action === "decline") router.push("/mechanic/dashboard")
     } finally {
       setActing(false)
+    }
+  }
+
+  async function handlePay() {
+    if (!job) return
+    setPaymentError(null)
+    setPaying(true)
+    try {
+      const init = await initiatePayment(job.id)
+      await openPaystackCheckout({
+        publicKey: init.public_key,
+        email: job.mechanic.email,
+        amount: init.amount,
+        reference: init.reference,
+        onSuccess: async (reference) => {
+          const updated = await verifyPayment(job.id, reference)
+          setJob(updated)
+          setPaying(false)
+        },
+        onClose: () => setPaying(false),
+      })
+    } catch {
+      setPaymentError("Couldn't start the payment. Please try again.")
+      setPaying(false)
     }
   }
 
@@ -107,8 +134,24 @@ export default function JobDetailPage() {
         </div>
       )}
 
+      {job.status === "accepted" && !job.is_paid && (
+        <div className="space-y-2 rounded-2xl border p-4" style={{ background: "#F3E4C8", borderColor: "#E0C68A" }}>
+          <p className="text-[13.5px] font-bold" style={{ color: "#8B5E22" }}>
+            GHS 10 lead fee
+          </p>
+          <p className="text-xs leading-relaxed" style={{ color: "#8B5E22" }}>
+            Pay the lead fee to mark this job complete.
+          </p>
+          <Button size="sm" onClick={handlePay} disabled={paying}>
+            {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+            Pay GHS 10
+          </Button>
+          {paymentError && <p className="text-xs text-destructive">{paymentError}</p>}
+        </div>
+      )}
+
       {job.status === "accepted" && (
-        <Button className="w-full" disabled={acting} onClick={() => handle("complete")}>
+        <Button className="w-full" disabled={acting || !job.is_paid} onClick={() => handle("complete")}>
           {acting && <Loader2 className="h-4 w-4 animate-spin" />}
           Mark job complete
         </Button>

@@ -80,6 +80,7 @@ export interface Job {
   responded_at: string | null
   completed_at: string | null
   rated_by_me: boolean
+  is_paid: boolean
   created_at: string
 }
 
@@ -88,6 +89,12 @@ export interface Rating {
   score: number
   comment: string
   created_at: string
+}
+
+export interface PaymentInit {
+  reference: string
+  amount: string
+  public_key: string
 }
 
 export interface Paginated<T> {
