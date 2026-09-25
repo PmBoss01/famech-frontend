@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
 import { Check, Loader2, MapPin, X } from "lucide-react"
 
+import { RatePrompt } from "@/components/ratings/RatePrompt"
+import { TopBar } from "@/components/portal/TopBar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { acceptJob, completeJob, declineJob, getJob } from "@/lib/jobs"
+import { acceptJob, completeJob, declineJob, getJob, rateJob } from "@/lib/jobs"
 import { statusBadgeClass } from "@/lib/status"
 import type { Job } from "@/lib/types"
 
@@ -15,10 +18,30 @@ export default function JobDetailPage() {
   const router = useRouter()
   const [job, setJob] = useState<Job | null>(null)
   const [acting, setActing] = useState(false)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    getJob(id).then(setJob)
+    getJob(id)
+      .then(setJob)
+      .catch(() => setNotFound(true))
   }, [id])
+
+  if (notFound) {
+    return (
+      <div className="space-y-6">
+        <TopBar title="Job" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed py-16 text-center">
+          <p className="text-sm text-muted-foreground">
+            This job isn&apos;t available on the current account — it may belong to a different
+            account signed in earlier.
+          </p>
+          <Button size="sm" nativeButton={false} render={<Link href="/mechanic/dashboard" />}>
+            Back to dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   async function handle(action: "accept" | "decline" | "complete") {
     if (!job) return
@@ -45,8 +68,10 @@ export default function JobDetailPage() {
 
   return (
     <div className="space-y-6">
+      <TopBar title="Job" />
+
       <div className="flex items-start justify-between gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">{request.description}</h1>
+        <h1 className="text-xl font-bold tracking-tight">{request.description}</h1>
         <Badge className={statusBadgeClass(job.status)}>{job.status}</Badge>
       </div>
 
@@ -87,6 +112,16 @@ export default function JobDetailPage() {
           {acting && <Loader2 className="h-4 w-4 animate-spin" />}
           Mark job complete
         </Button>
+      )}
+
+      {job.status === "completed" && !job.rated_by_me && (
+        <RatePrompt
+          title="Rate the car owner"
+          onSubmit={async (score, comment) => {
+            await rateJob(job.id, { score, comment })
+            setJob({ ...job, rated_by_me: true })
+          }}
+        />
       )}
     </div>
   )

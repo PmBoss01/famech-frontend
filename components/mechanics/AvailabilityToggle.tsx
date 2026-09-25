@@ -26,16 +26,33 @@ export function AvailabilityToggle({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border bg-card p-4">
+    <div
+      className="flex items-center justify-between rounded-2xl border p-4"
+      style={
+        isAvailable
+          ? { background: "#1F4D3B", borderColor: "#1F4D3B" }
+          : undefined
+      }
+    >
       <div>
-        <Label htmlFor="availability" className="text-sm font-medium">
+        <Label
+          htmlFor="availability"
+          className="text-[14.5px] font-bold"
+          style={isAvailable ? { color: "#FAF8F4" } : undefined}
+        >
           {isAvailable ? "Available for jobs" : "Not accepting jobs"}
         </Label>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs" style={isAvailable ? { color: "#B7CFC4" } : undefined}>
           {isAvailable ? "You'll be matched with nearby requests." : "You won't receive new requests."}
         </p>
       </div>
-      <Switch id="availability" checked={isAvailable} onCheckedChange={handleToggle} disabled={saving} />
+      <Switch
+        id="availability"
+        checked={isAvailable}
+        onCheckedChange={handleToggle}
+        disabled={saving}
+        className={isAvailable ? "data-checked:bg-[#3E7A61]" : undefined}
+      />
     </div>
   )
 }

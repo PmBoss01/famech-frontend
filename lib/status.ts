@@ -1,9 +1,9 @@
 const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  accepted: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-  completed: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  declined: "bg-muted text-muted-foreground",
-  cancelled: "bg-muted text-muted-foreground",
+  pending: "bg-[#F3E4C8] text-[#8B5E22] dark:bg-[#3A2E1A] dark:text-[#E8C77A]",
+  accepted: "bg-[#E4EDE7] text-[#1F4D3B] dark:bg-[#16281F] dark:text-[#8FCBAA]",
+  completed: "bg-[#F3EFE7] text-[#78716C] dark:bg-[#2B261E] dark:text-[#A8A29E]",
+  declined: "bg-[#F3EFE7] text-[#78716C] dark:bg-[#2B261E] dark:text-[#A8A29E]",
+  cancelled: "bg-[#F3EFE7] text-[#78716C] dark:bg-[#2B261E] dark:text-[#A8A29E]",
 }
 
 export function statusBadgeClass(status: string) {

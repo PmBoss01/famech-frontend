@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { LocateFixed, Loader2, MapPin } from "lucide-react"
+import { LocateFixed, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,7 @@ export function LocationPicker({
 }) {
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasCoordinates = Boolean(value.latitude && value.longitude)
 
   function useCurrentLocation() {
     if (!navigator.geolocation) {
@@ -49,16 +50,37 @@ export function LocationPicker({
   return (
     <div className="space-y-3">
       <Label>Location</Label>
+
+      {hasCoordinates && (
+        <div
+          className="relative h-[110px] overflow-hidden rounded-2xl border"
+          style={{
+            backgroundColor: "var(--secondary)",
+            backgroundImage:
+              "repeating-linear-gradient(0deg, var(--border) 0px, var(--border) 1px, transparent 1px, transparent 24px), repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 1px, transparent 1px, transparent 24px)",
+          }}
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="var(--primary)"
+            stroke="var(--background)"
+            strokeWidth="1.5"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full"
+          >
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+          </svg>
+          <div className="absolute bottom-2.5 right-2.5 rounded-lg border bg-card px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+            {value.latitude}, {value.longitude}
+          </div>
+        </div>
+      )}
+
       <Button type="button" variant="outline" className="w-full" onClick={useCurrentLocation} disabled={locating}>
         {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
         Use my current location
       </Button>
-      {value.latitude && value.longitude && (
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5" />
-          {value.latitude}, {value.longitude}
-        </p>
-      )}
       {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="grid grid-cols-2 gap-2">
         <Input

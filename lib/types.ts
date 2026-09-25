@@ -8,6 +8,8 @@ export interface User {
   last_name: string
   role: Role
   phone_number: string
+  rating_avg: string | null
+  rating_count: number
 }
 
 export interface MechanicProfile {
@@ -22,6 +24,7 @@ export interface MechanicProfile {
   service_radius_km: number
   is_available: boolean
   is_verified: boolean
+  id_document: string | null
 }
 
 export type RequestStatus = "pending" | "accepted" | "completed" | "cancelled"
@@ -30,8 +33,12 @@ export type JobStatus = "pending" | "accepted" | "declined" | "completed" | "can
 export interface JobOfferSummary {
   id: string
   mechanic_name: string
+  mechanic_verified: boolean
+  mechanic_rating_avg: string | null
+  mechanic_rating_count: number
   status: JobStatus
   price: string | null
+  rated_by_me: boolean
 }
 
 export interface ServiceRequest {
@@ -72,6 +79,14 @@ export interface Job {
   price: string | null
   responded_at: string | null
   completed_at: string | null
+  rated_by_me: boolean
+  created_at: string
+}
+
+export interface Rating {
+  id: string
+  score: number
+  comment: string
   created_at: string
 }
 

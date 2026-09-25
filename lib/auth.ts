@@ -33,6 +33,11 @@ export async function me() {
   return data
 }
 
+export async function updateMe(payload: Partial<Pick<User, "first_name" | "last_name" | "phone_number" | "email">>) {
+  const { data } = await api.patch<User>("/users/me/", payload)
+  return data
+}
+
 export function logout() {
   localStorage.removeItem("access_token")
   localStorage.removeItem("refresh_token")

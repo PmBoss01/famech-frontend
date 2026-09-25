@@ -15,3 +15,10 @@ export async function updateProfile(payload: Partial<MechanicProfile>) {
   const { data } = await api.patch<MechanicProfile>("/mechanics/profile/", payload)
   return data
 }
+
+export async function uploadIdDocument(file: File) {
+  const formData = new FormData()
+  formData.append("id_document", file)
+  const { data } = await api.patch<MechanicProfile>("/mechanics/profile/", formData)
+  return data
+}
